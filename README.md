@@ -17,12 +17,12 @@ Bonus points: port foward your IP on your router and make it accessible by anyon
 
 Compiling:
 ```
-g++ -std=c++11 server.cpp
+make
 ```
 
 Running:
 ```
-./a.out [PORT NUMBER such as 8002]
+make run HOST=[PORT NUMBER such as 8080]
 ```
 
 Using:
