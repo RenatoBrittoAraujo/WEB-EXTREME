@@ -4,6 +4,12 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 
+#include "request.h"
+#include "response.h"
+
+const int MAX_REQUEST_SIZE = 10000;
+const int MAX_OUTPUT_SIZE = 500;
+
 void handleRequest(int);
 
 void error(const char *msg)
@@ -63,54 +69,11 @@ int main(int argc, char *argv[])
     }
   }
   close(sockfd);
-  return 69420;
+  return 69 + 420;
 }
-
-// class Request
-// {
-// public:
-//   Request(const char* response_buffer);
-// private:
-//   std::string request_text;
-// };
-
-// class Response 
-// {
-// public:
-//   Response(Request request);
-//   std::string getResponse();
-//   int getResponseSize();
-// private:
-
-// };
-
-// void handleRequest2(int sock)
-// {
-//   const int MAX_REQUEST_SIZE = 10000;
-//   char buffer[MAX_REQUEST_SIZE];
-//   bzero(buffer, MAX_REQUEST_SIZE);
-
-//   if (read(sock, buffer, MAX_REQUEST_SIZE) < 0)
-//   {
-//     error("ERROR at recieving request");
-//   }
-
-//   std::cout << "==== REQUEST:" << std::endl << buffer << std::endl;
-
-//   Request req(buffer);
-//   Response res(req);
-
-//   std::cout << "==== RESPONSE:" << std::endl << res.getResponse() << std::endl;
-
-//   if (write(sock, res.getResponse().c_str(), res.getResponseSize()) < 0)
-//   {
-//     error("ERROR at sending response");
-//   }
-// }
 
 void handleRequest(int sock)
 {
-  const int MAX_REQUEST_SIZE = 10000;
   char buffer[MAX_REQUEST_SIZE];
   bzero(buffer, MAX_REQUEST_SIZE);
 
@@ -119,30 +82,32 @@ void handleRequest(int sock)
     error("ERROR at recieving request");
   }
 
-  std::cout<<"==== REQUEST:" << std::endl << buffer << std::endl;
+  std::string sBuffer(buffer);
 
-  std::string s = "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n";
+  std::cout << "==== REQUEST:" << std::endl
+    << (sBuffer.size() > MAX_OUTPUT_SIZE ? 
+        sBuffer.substr(0, MAX_OUTPUT_SIZE) + "..."
+      : sBuffer) << std::endl << std::endl;
 
-  std::ifstream file("assets/index.html", std::ios::binary | std::ios::ate);
-  std::streamsize size = file.tellg();
-  file.seekg(0, std::ios::beg);
-  std::vector<char> bufferr(size);
+  Request req(sBuffer);
+  Response res(req);
 
-  if (file.read(bufferr.data(), size))
+  std::string response_text = res.getResponse();
+  int response_text_size = res.getResponseSize();
+
+  std::cout << "==== RESPONSE:" << std::endl 
+    << (response_text.size() > MAX_OUTPUT_SIZE ? 
+      response_text.substr(0, MAX_OUTPUT_SIZE) + "..." 
+      : response_text) 
+    << std::endl << std::endl;
+
+  if (write(sock, 
+      response_text.c_str(), 
+      response_text_size) < 0)
   {
-    std::string vs;
-    for (auto v : bufferr)
-      if (v == '\n')
-        vs += "\r\n";
-      else
-        vs += v;
-    vs += "\r\n";
-    s += vs;
-    std::cout << "==== RESPONSE:" << std::endl << s << std::endl;
-    if (write(sock, s.c_str(), (int)s.size()) < 0)
-    {
-      error("ERROR at sending response");
-    }
-    std::cout << "RESPONSE COMPLETE, LISTENING..." << std::endl << std::endl;
+    error("ERROR at sending response");
   }
+
+  std::cout << "RESPONSE COMPLETE, LISTENING..." 
+    << std::endl << std::endl;
 }

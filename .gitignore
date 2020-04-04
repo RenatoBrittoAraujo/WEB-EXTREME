@@ -2,3 +2,5 @@
 server
 obj/*
 !obj/.gitkeep
+db/*
+!db/.gitkeep
