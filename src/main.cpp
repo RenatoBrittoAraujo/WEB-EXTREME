@@ -6,6 +6,7 @@
 
 #include "request.h"
 #include "response.h"
+#include "database.h"
 
 const int MAX_REQUEST_SIZE = 10000;
 const int MAX_OUTPUT_SIZE = 500;
@@ -24,8 +25,14 @@ int main(int argc, char *argv[])
 
   if (argc != 2)
   {
-    fprintf(stderr, "ERROR expected one argument on call. Usage: ./executable [PORT NUMBER]\n");
+    fprintf(stderr, "ERROR expected one argument on call. Usage: ./executable [PORT NUMBER] or ./executable -db\n");
     exit(1);
+  }
+
+  if (std::string(argv[1]) == "-db")
+  {
+    Database::DBMode();
+    return 0;
   }
 
   int sockfd, newsockfd, portno, pid;

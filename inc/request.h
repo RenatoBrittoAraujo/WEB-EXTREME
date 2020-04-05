@@ -7,7 +7,9 @@ enum REQUEST_TYPE
 {
   INVALID,
   GET,
-  POST
+  POST,
+  PUT,
+  DELETE
 };
 
 class Request

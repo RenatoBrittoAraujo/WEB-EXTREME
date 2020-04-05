@@ -22,7 +22,7 @@ clean:
 	@echo "rm ./$(TARGET)"; rm ./$(TARGET)
 
 run:
-	./$(TARGET) $(HOST)
+	./$(TARGET) $(FLAGS) $(HOST)
 
 makefiledebug:
 	@echo "MAKEFILE VARIABLES: ";

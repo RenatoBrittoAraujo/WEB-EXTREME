@@ -24,7 +24,11 @@ REQUEST_TYPE Request::getType()
     this->type = REQUEST_TYPE::GET;
   if (typeText == "POST")
     this->type = REQUEST_TYPE::POST;
-  
+  if (typeText == "PUT")
+    this->type = REQUEST_TYPE::PUT;
+  if (typeText == "DELETE")
+    this->type = REQUEST_TYPE::DELETE;
+
   return this->type;
 }
 

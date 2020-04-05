@@ -5,7 +5,7 @@ class Database
 {
 public:
   Database();
-  
+  static void DBMode();
 private:
 
 };
