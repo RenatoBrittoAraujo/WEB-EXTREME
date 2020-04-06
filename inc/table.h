@@ -31,6 +31,14 @@ struct TableAlreadyExistsException : public std::exception
   }
 };
 
+struct InvalidFieldException : public std::exception
+{
+  const char *what() const throw()
+  {
+    return "fields were not correctly filled";
+  }
+};
+
 enum InstStatus
 {
   NONE = 0,
@@ -57,10 +65,14 @@ public:
   std::vector<std::map<std::string, std::string>> getAllInstances();
   // Adds a new element to table 
   // Returns element ID
-  int addElement(std::vector<std::map<std::string, std::string>> fields);
+  int addElement(std::map<std::string, std::string> instance);
   // Removes element with said ID
   // Returns true if succeed and false if element not found
   bool removeElement(int id);
+  // Returns the number of fields of table
+  int getNumberOfFields();
+  // Returns the fields of table
+  std::vector<std::string> getFields();
 private:
   // Returns true if table exits
   static bool checkTableExists(std::string tablename);

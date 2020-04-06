@@ -1,4 +1,5 @@
 #include <iostream>
+#include <set>
 
 #include "database.h"
 #include "helpers.h"
@@ -14,18 +15,18 @@ struct Command
 };
 
 std::vector<Command> commands =
-{
-  Command("help", "Show available commands"),
-  Command("exit", "Exits database management"),
-  Command("create_table [table name] [table field 1] [table field 2] ...", "Creates a new table"),
-  Command("destroy_table [table name]", "Destroys table"),
-  Command("update_el [table name] [element ID] [fields]", "Updates all fields of element in table"),
-  Command("get_el [table name] [element ID]", "Returns fields of given element on given table"),
-  Command("add_el [table name] [fields]", "Creates a new element on a existent table"),
-  Command("list_tables", "Lists all existent tables"),
-  Command("list_elements [table name]", "Lists all elements in table (may be huge)"),
-  Command("peek_table [table name]", "Lists some elements in table"),
-  Command("table_size [table name]", "Show number of elements in table")
+    {
+        Command("help", "Show available commands"),
+        Command("exit", "Exits database management"),
+        Command("create_table [table name] [field 1] [field 2] ...", "Creates a new table"),
+        Command("destroy_table [table name]", "Destroys table"),
+        Command("get_el [table name] [element ID]", "Returns fields of given element on given table"),
+        Command("add_el [table name] [field 1]=\"[value1part1] [value2part2]\"  [field 2]=[value2] ...", "Creates a new element on a existent table"),
+        Command("list_tables", "Lists all existent tables"),
+        Command("list_elements [table name]", "Lists all elements in table (may be huge)"),
+        Command("peek_table [table name]", "Lists some elements in table"),
+        Command("table_size [table name]", "Show number of elements in table"),
+        Command("fields [table name]", "Show fields in table"),
 };
 
 bool test_table(std::string tablename)
@@ -94,7 +95,71 @@ void destroy_table(std::string tablename)
     std::cout << "Table could not be removed" << std::endl;
 }
 
+void fields(std::string tablename)
+{
+  if (not test_table(tablename))
+    return;
+  auto fields = Table(tablename).getFields();
+  for (auto field : fields)
+    std::cout << field << std::endl;
+}
+
+void add_el(std::string tablename, std::vector<std::string> values)
+{
+  if (not test_table(tablename))
+    return;
+  values.erase(values.begin());
+  values.erase(values.begin());
+  std::map<std::string, std::string> elFields;
+  bool onMultipleCall = false;
+  std::string lastField = "";
+  for (auto keyvalue : values)
+  {
+    if (onMultipleCall) 
+    {
+      if (keyvalue[keyvalue.size() - 1] == '"')
+      {
+        onMultipleCall = false;
+        keyvalue.pop_back();
+      }
+      elFields[lastField] += keyvalue;
+      continue;
+    }
+    auto key = split(keyvalue, "=")[0];
+    auto value = split(keyvalue, "=")[1];
+    if (value[0] == '"') 
+    {
+      onMultipleCall = true;
+      lastField = key;
+      value = value.substr(1);
+    }
+    if (value[value.size() - 1] == '"')
+    {
+      onMultipleCall = false;
+      value = value.substr(0, value.size() - 1);
+    }
+    elFields[key] = value;
+  }
+  if (onMultipleCall) 
+  {
+    std::cout << "Invalid parsing" << std::endl;
+    return;
+  }
+  try
+  {
+    Table(tablename).addElement(elFields);
+  }
+  catch (InvalidFieldException& e)
+  {
+    std::cout << "Invalid fields, available field are:" << std::endl;
+    fields(tablename);
+    return;
+  }
+  std::cout << "Element created" << std::endl;
+}
+
 /* == MACROS == */
+
 #define CHECK(NAME, ARGS)                                            \
   else if (parsed_input[0] == NAME) if (parsed_input.size() != ARGS) \
   std::cout << "Invalid command" << std::endl; else
@@ -103,7 +168,8 @@ void destroy_table(std::string tablename)
   else if (parsed_input[0] == NAME) if (parsed_input.size() < ARGS) \
   std::cout << "Invalid command" << std::endl; else
 
-void Database::DBMode()
+    void
+    Database::DBMode()
 {
   std::cout << "Database management mode. Type \"help\" for available commands" 
     << std::endl << std::endl;
@@ -122,6 +188,8 @@ void Database::DBMode()
     CHECK("table_size", 2) table_size(parsed_input[1]);
     CHECKGT("create_table", 3) create_table(parsed_input[1], parsed_input);
     CHECK("destroy_table", 2) destroy_table(parsed_input[1]);
+    CHECK("fields", 2) fields(parsed_input[1]);
+    CHECKGT("add_el", 3) add_el(parsed_input[1], parsed_input);
     else std::cout << "Command not found" << std::endl;
     std::cout << std::endl;
   }
