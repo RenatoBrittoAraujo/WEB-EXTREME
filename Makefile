@@ -9,7 +9,7 @@ SOURCES = $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 
 OBJECTS = $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
 
-INC = -I inc
+INC = -I inc -I apps
 
 $(TARGET): $(OBJECTS)
 	@echo "$(CC) $(INC) $^ -o $(TARGET)"; $(CC) $(INC) $^ -o $(TARGET)

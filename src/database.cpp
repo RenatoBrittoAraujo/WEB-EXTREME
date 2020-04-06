@@ -30,6 +30,11 @@ bool Database::destroyTable(std::string tablename)
 std::vector<std::map<std::string, std::string>> 
   Database::getAllInstances(std::string tablename)
 {
+  if (not Database::tableExists(tablename))
+  {
+    throw TableNotFoundException();
+  }
+  return Table(tablename).getAllInstances();
 }
 
 std::vector<Table> Database::getTables()
@@ -52,14 +57,7 @@ std::vector<Table> Database::getTables()
 Table Database::getTable(std::string tablename)
 {
   Table table;
-  try
-  {
-    table = Table(tablename);
-  }
-  catch (TableNotFoundException &e)
-  {
-    std::cerr << tablename + " " + e.what() << std::endl;
-  }
+  table = Table(tablename);
   return table;
 }
 

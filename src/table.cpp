@@ -16,8 +16,8 @@ Table::Table(std::string tablename)
   this->tablename = tablename;
 }
 
-Table::Table(std::string tablename, 
-  std::vector<std::string> fields)
+Table::Table(std::string tablename,
+             std::vector<std::string> fields)
 {
   if (Table::checkTableExists(tablename))
   {
@@ -31,7 +31,7 @@ Table::Table(std::string tablename,
   for (size_t i = 0; i < fields.size(); i++)
   {
     table << fields[i];
-    if (fields.size() - 1 > i) 
+    if (fields.size() - 1 > i)
       table << '|';
   }
   table << '$';
@@ -47,7 +47,7 @@ int Table::count()
 {
   std::ifstream table("db/" + tablename, std::ios::binary);
   int count;
-  table.read((char *) &count, sizeof (int));
+  table.read((char *)&count, sizeof(int));
   table.close();
   return count;
 }
@@ -55,23 +55,26 @@ int Table::count()
 std::map<std::string, std::string> Table::getElement(int id)
 {
   std::map<std::string, std::string> element;
-  if (count() < id) 
+  if (count() < id)
   {
     throw InvalidQuery();
     return element;
   }
   auto table = getElPosition(id);
-  while (table.get() != '|');
+  while (table.get() != '|')
+    ;
   auto status = getStatus(table);
   if (status != InstStatus::ACTIVE)
   {
     throw InvalidQuery();
     return element;
   }
-  while (table.get() != '|');
+  while (table.get() != '|')
+    ;
   std::string buffer;
   char ch;
-  while ((ch = table.get()) != '$') buffer += ch;
+  while ((ch = table.get()) != '$')
+    buffer += ch;
   table.close();
   auto orderedFields = split(buffer, "|");
   int indx = 0;
@@ -83,8 +86,8 @@ std::map<std::string, std::string> Table::getElement(int id)
   return element;
 }
 
-std::vector<std::map<std::string, std::string>> 
-  Table::getAllInstances()
+std::vector<std::map<std::string, std::string>>
+Table::getAllInstances()
 {
   std::vector<std::map<std::string, std::string>> instances;
   int numOfElements = count();
@@ -95,7 +98,7 @@ std::vector<std::map<std::string, std::string>>
     {
       element = getElement(i);
     }
-    catch(const InvalidQuery& e)
+    catch (const InvalidQuery &e)
     {
       continue;
     }
@@ -105,7 +108,7 @@ std::vector<std::map<std::string, std::string>>
 }
 
 int Table::addElement(
-  std::map<std::string, std::string> instance)
+    std::map<std::string, std::string> instance)
 {
   std::set<std::string> remainingFields;
   for (auto field : this->getFields())
@@ -113,7 +116,7 @@ int Table::addElement(
   for (auto keyvalue : instance)
   {
     auto field = keyvalue.first;
-    if (!remainingFields.count(field)) 
+    if (!remainingFields.count(field))
     {
       throw InvalidFieldException();
       return -1;
@@ -125,12 +128,13 @@ int Table::addElement(
     throw InvalidFieldException();
     return -1;
   }
-  std::fstream table("db/" + this->tablename, std::ios::binary | std::ios::in | std::ios::out);
+  std::fstream table("db/" + this->tablename, 
+    std::ios::binary | std::ios::in | std::ios::out);
   int newCount = count() + 1;
-  table.write((char *) &newCount, sizeof(int));
+  table.write((char *)&newCount, sizeof(int));
   table.close();
   table.open("db/" + this->tablename, std::ios::app);
-  
+
   // First 4 bytes: ID
   table.write((char *)(&newCount), sizeof(newCount));
   table << '|';
@@ -158,7 +162,8 @@ bool Table::removeElement(int id)
     return false;
   }
   auto table = getElPosition(id);
-  while (table.get() != '|');
+  while (table.get() != '|')
+    ;
   auto status = getStatus(table);
   if (status != InstStatus::ACTIVE)
   {
@@ -166,7 +171,8 @@ bool Table::removeElement(int id)
   }
   int pos = table.tellg();
   table.close();
-  std::fstream ctable("db/" + tablename, std::ios::binary | std::ios::in | std::ios::out);
+  std::fstream ctable("db/" + tablename, std::ios::binary 
+    | std::ios::in | std::ios::out);
   ctable.seekg(pos - 2);
   status = InstStatus::DELETED;
   ctable.write((char *)(&status), sizeof(status));
@@ -182,7 +188,8 @@ std::vector<std::string> Table::getFields()
 {
   std::ifstream table("db/" + tablename);
   std::string header;
-  for (int i=0;i<5;i++)table.get();
+  for (int i = 0; i < 5; i++)
+    table.get();
   char c;
   while (c = table.get(), c != '$')
     header += c;
@@ -216,13 +223,15 @@ int16_t Table::getStatus(std::ifstream &table)
 std::ifstream Table::getElPosition(int id)
 {
   std::ifstream table("db/" + this->tablename, std::ios::binary);
-  while (table.get() != '$');
+  while (table.get() != '$')
+    ;
   while (true)
   {
     int cid = getID(table);
     if (cid < id)
     {
-      while (table.get() != '$');
+      while (table.get() != '$')
+        ;
     }
     else if (cid > id)
     {

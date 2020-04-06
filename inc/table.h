@@ -84,10 +84,13 @@ public:
 private:
   // Returns true if table exits
   static bool checkTableExists(std::string tablename);
-  std::string tablename;
+  // Returns id from ifstream buffer set on ID position
   int getID(std::ifstream &table);
+  // Returns id from ifstream buffer set on status position
   int16_t getStatus(std::ifstream &table);
+  // Returns ifstream on set position given by ID
   std::ifstream getElPosition(int id);
+  std::string tablename;
 };
 
 #endif

@@ -1,21 +1,16 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <map>
 
 #include "response.h"
 #include "request.h"
-#include "router.h"
 
 Response::Response(Request req)
 {
   // ASSUMING VALID REQUEST
   response_text += "HTTP/1.1 200 OK\r\n";
-  FileLoad fileInfo = router[req.getPath()];
-  if (not fileInfo.isInit)
-  {
-    fileInfo = FileLoad("assets/oops.html", false);
-  }
-  std::string file = loadFile(fileInfo.filePath, fileInfo.rawFormat);
+  std::string file = router[req.getPath()];
   if (req.isFaviconReq())
   {
     response_text += "Content-Type: image/ico\r\n";

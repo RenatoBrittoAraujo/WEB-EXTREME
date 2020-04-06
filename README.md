@@ -9,9 +9,11 @@ Also, you must parse and create HTTP requests and responses.
 
 Your CRUD must be of a resource such as a blog post, with more than 1 field. For example: Blog post has title, body, id and poster (all simple strings).
 
-Your resources has to be persistent. When you create a post, it should be there next time even if you shut down the server.
+Your resources have to be persistent. When you create a post, it should be there next time even if you shut down the server.
 
 Bonus points: port foward your IP on your router and make it accessible by anyone.
+
+Bonut points: implement authentication with a cryptography algorithm of your choosing
 
 ## This is my take on the challenge
 
