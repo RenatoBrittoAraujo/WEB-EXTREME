@@ -56,7 +56,9 @@ int main(int argc, char *argv[])
 
   double timedelta = double(clock() - initialClock) / double(CLOCKS_PER_SEC);
   std::cout << std::setprecision(2);
-  std::cout << "SERVER IS UP! (took " << ( timedelta < 0.01 ? "less than one second" : std::to_string(timedelta) + "second" + (timedelta >= 2.0 ? "(s)" : "") )  << ")" << std::endl;
+  std::cout << "SERVER IS UP! (took " << ( timedelta < 0.01 ? 
+    "less than one second" : std::to_string(timedelta) + "second" + 
+    (timedelta >= 2.0 ? "(s)" : "") )  << ")" << std::endl;
   std::cout << "AVAILABLE AT http://localhost:" << portno << std::endl;
   std::cout << "LISTENING..." << std::endl << std::endl;
 

@@ -1,54 +1,75 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <dirent.h>
+#include <fstream>
 
 #include "database.h"
 
-
-/* ====== DATABASE MANAGEMENT IO ====== */
-
-struct Command
+Database::Database()
 {
-  Command(std::string commandName, std::string commandDescription) :
-    commandName(commandName), commandDescription(commandDescription)
-  {}
-  std::string commandName;
-  std::string commandDescription;
-};
-
-std::vector<Command> commands =
-{
-  Command("create", "dick balls ballks dick"),
-  Command("destroy", ""),
-  Command("update", ""),
-  Command("check_attr", ""),
-  Command("list", ""),
-  Command("exit", "Exits the program")
-};
-
-void helpio()
-{
-
-  std::cout << "Commands available:" << std::endl;
-  for (auto command : commands)
-  {
-    std::cout << "=> " << command.commandName << std::endl
-              << command.commandDescription << std::endl
-              << std::endl;
-  }
 }
 
-void Database::DBMode()
+Table Database::createTable(std::string tablename, 
+  std::vector<std::string> fields)
 {
-  std::cout << "Database management mode. Type \"help\" for available commands" << std::endl;
-  while (true)
+  return Table(tablename, fields);
+}
+
+bool Database::destroyTable(std::string tablename)
+{
+  std::fstream file("db/" + tablename);
+  if (file.is_open())
   {
-    std::string input;
-    std::cout << "COMMAND: ";
-    std::getline(std::cin, input);
-    if (input.find("help") != input.npos)
-    {
-      helpio();
-    }
+    file.close();
+    return !remove(std::string("db/" + tablename).c_str());
   }
+  return false;
+}
+
+std::vector<std::map<std::string, std::string>> 
+  Database::getAllInstances(std::string tablename)
+{
+}
+
+std::vector<Table> Database::getTables()
+{
+  std::vector<Table> tables;
+  DIR *dir;
+  dirent *pdir;
+  dir = opendir("db/");
+  while ((pdir = readdir(dir)) != NULL)
+  {
+    if (pdir->d_name[0] == '.')
+      continue;
+    tables.push_back(Table(std::string(pdir->d_name)));
+  }
+  closedir(dir);
+  free(pdir);
+  return tables;
+}
+
+Table Database::getTable(std::string tablename)
+{
+  Table table;
+  try
+  {
+    table = Table(tablename);
+  }
+  catch (TableNotFoundException &e)
+  {
+    std::cerr << tablename + " " + e.what() << std::endl;
+  }
+  return table;
+}
+
+bool Database::tableExists(std::string tablename)
+{
+  std::fstream file("db/" + tablename);
+  if (file.is_open())
+  {
+    file.close();
+    return true;
+  }
+  return false;
 }

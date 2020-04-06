@@ -50,8 +50,10 @@ std::string Request::getPath()
       break;
     }
   }
-  int rem = 1 + (request_text[spcLoc[1] - 1] == '/' and spcLoc[1] - 2 != spcLoc[0]);
-  return this->path = request_text.substr(spcLoc[0] + 1, spcLoc[1] - spcLoc[0] - rem);
+  int rem = 1 + (request_text[spcLoc[1] - 1] == '/' and 
+    spcLoc[1] - 2 != spcLoc[0]);
+  return this->path = request_text.substr(
+    spcLoc[0] + 1, spcLoc[1] - spcLoc[0] - rem);
 }
 
 bool Request::isFaviconReq()
