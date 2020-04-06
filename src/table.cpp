@@ -54,13 +54,54 @@ int Table::count()
 
 std::map<std::string, std::string> Table::getElement(int id)
 {
-
+  std::map<std::string, std::string> element;
+  if (count() < id) 
+  {
+    throw InvalidQuery();
+    return element;
+  }
+  auto table = getElPosition(id);
+  while (table.get() != '|');
+  auto status = getStatus(table);
+  if (status != InstStatus::ACTIVE)
+  {
+    throw InvalidQuery();
+    return element;
+  }
+  while (table.get() != '|');
+  std::string buffer;
+  char ch;
+  while ((ch = table.get()) != '$') buffer += ch;
+  table.close();
+  auto orderedFields = split(buffer, "|");
+  int indx = 0;
+  for (auto field : this->getFields())
+  {
+    element[field] = orderedFields[indx++];
+  }
+  element["id"] = std::to_string(id);
+  return element;
 }
 
 std::vector<std::map<std::string, std::string>> 
   Table::getAllInstances()
 {
-
+  std::vector<std::map<std::string, std::string>> instances;
+  int numOfElements = count();
+  for (int i = 1; i <= numOfElements; i++)
+  {
+    std::map<std::string, std::string> element;
+    try
+    {
+      element = getElement(i);
+    }
+    catch(const InvalidQuery& e)
+    {
+      continue;
+    }
+    instances.push_back(element);
+  }
+  return instances;
 }
 
 int Table::addElement(
@@ -89,13 +130,47 @@ int Table::addElement(
   table.write((char *) &newCount, sizeof(int));
   table.close();
   table.open("db/" + this->tablename, std::ios::app);
-  table << "fuck";
+  
+  // First 4 bytes: ID
+  table.write((char *)(&newCount), sizeof(newCount));
+  table << '|';
+  // Next 2 bytes: Status
+  int16_t status = InstStatus::ACTIVE;
+  table.write((char *)(&status), sizeof(status));
+  table << '|';
+  // Content by field in order of input
+  auto fields = this->getFields();
+  for (size_t i = 0; i < fields.size(); i++)
+  {
+    table << instance[fields[i]];
+    if (i != fields.size() - 1)
+      table << '|';
+  }
+  table << '$';
+
   table.close();
 }
 
 bool Table::removeElement(int id)
 {
-
+  if (count() < id)
+  {
+    return false;
+  }
+  auto table = getElPosition(id);
+  while (table.get() != '|');
+  auto status = getStatus(table);
+  if (status != InstStatus::ACTIVE)
+  {
+    return false;
+  }
+  int pos = table.tellg();
+  table.close();
+  std::fstream ctable("db/" + tablename, std::ios::binary | std::ios::in | std::ios::out);
+  ctable.seekg(pos - 2);
+  status = InstStatus::DELETED;
+  ctable.write((char *)(&status), sizeof(status));
+  ctable.close();
 }
 
 int Table::getNumberOfFields()
@@ -122,4 +197,42 @@ bool Table::checkTableExists(std::string tablename)
   bool ret = table.is_open();
   table.close();
   return ret;
+}
+
+int Table::getID(std::ifstream &table)
+{
+  int ret;
+  table.read((char *)&ret, sizeof(ret));
+  return ret;
+}
+
+int16_t Table::getStatus(std::ifstream &table)
+{
+  int16_t ret;
+  table.read((char *)&ret, sizeof(ret));
+  return ret;
+}
+
+std::ifstream Table::getElPosition(int id)
+{
+  std::ifstream table("db/" + this->tablename, std::ios::binary);
+  while (table.get() != '$');
+  while (true)
+  {
+    int cid = getID(table);
+    if (cid < id)
+    {
+      while (table.get() != '$');
+    }
+    else if (cid > id)
+    {
+      throw InvalidQuery();
+      return std::ifstream();
+    }
+    else
+    {
+      break;
+    }
+  }
+  return table;
 }

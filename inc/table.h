@@ -39,6 +39,14 @@ struct InvalidFieldException : public std::exception
   }
 };
 
+struct InvalidQuery : public std::exception
+{
+  const char *what() const throw()
+  {
+    return "query is not valid";
+  }
+};
+
 enum InstStatus
 {
   NONE = 0,
@@ -77,6 +85,9 @@ private:
   // Returns true if table exits
   static bool checkTableExists(std::string tablename);
   std::string tablename;
+  int getID(std::ifstream &table);
+  int16_t getStatus(std::ifstream &table);
+  std::ifstream getElPosition(int id);
 };
 
 #endif

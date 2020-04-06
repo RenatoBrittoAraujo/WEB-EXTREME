@@ -22,9 +22,9 @@ std::vector<Command> commands =
         Command("destroy_table [table name]", "Destroys table"),
         Command("get_el [table name] [element ID]", "Returns fields of given element on given table"),
         Command("add_el [table name] [field 1]=\"[value1part1] [value2part2]\"  [field 2]=[value2] ...", "Creates a new element on a existent table"),
+        Command("rem_el [table name] [element ID]", "Removes element from table"),
         Command("list_tables", "Lists all existent tables"),
         Command("list_elements [table name]", "Lists all elements in table (may be huge)"),
-        Command("peek_table [table name]", "Lists some elements in table"),
         Command("table_size [table name]", "Show number of elements in table"),
         Command("fields [table name]", "Show fields in table"),
 };
@@ -122,7 +122,7 @@ void add_el(std::string tablename, std::vector<std::string> values)
         onMultipleCall = false;
         keyvalue.pop_back();
       }
-      elFields[lastField] += keyvalue;
+      elFields[lastField] += " " + keyvalue;
       continue;
     }
     auto key = split(keyvalue, "=")[0];
@@ -158,6 +158,53 @@ void add_el(std::string tablename, std::vector<std::string> values)
   std::cout << "Element created" << std::endl;
 }
 
+void get_el(std::string tablename, int id)
+{
+  if (not test_table(tablename))
+    return;
+  Table table(tablename);
+  std::map<std::string, std::string> element;
+  try
+  {
+    element = table.getElement(id);
+  } 
+  catch (InvalidQuery &e)
+  {
+    std::cout << "Query is invalid" << std::endl;
+    return;
+  }
+  for (auto field : table.getFields())
+  {
+    std::cout << field << ": " << element[field] << std::endl;
+  }
+}
+
+void list_elements(std::string tablename)
+{
+  if (not test_table(tablename))
+    return;
+  Table table(tablename);
+  auto elements = table.getAllInstances();
+  auto fields = table.getFields();
+  for (auto element : elements)
+  {
+    std::cout << "id: " << element["id"] << std::endl;
+    for (auto field : fields)
+    {
+      std::cout << field << ": " << element[field] << std::endl;
+    }
+  }
+}
+
+void rem_el(std::string tablename, int id)
+{
+  if (not test_table(tablename))
+    return;
+  Table table(tablename);
+  bool ok = table.removeElement(id);
+  std::cout << (ok ? "Element removed" : "Could not remove element") << std::endl;
+}
+
 /* == MACROS == */
 
 #define CHECK(NAME, ARGS)                                            \
@@ -190,6 +237,9 @@ void add_el(std::string tablename, std::vector<std::string> values)
     CHECK("destroy_table", 2) destroy_table(parsed_input[1]);
     CHECK("fields", 2) fields(parsed_input[1]);
     CHECKGT("add_el", 3) add_el(parsed_input[1], parsed_input);
+    CHECK("get_el", 3) get_el(parsed_input[1], std::stoi(parsed_input[2]));
+    CHECK("list_elements", 2) list_elements(parsed_input[1]);
+    CHECK("rem_el", 3) rem_el(parsed_input[1], std::stoi(parsed_input[2]));
     else std::cout << "Command not found" << std::endl;
     std::cout << std::endl;
   }
