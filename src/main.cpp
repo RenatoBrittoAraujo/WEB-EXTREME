@@ -9,7 +9,7 @@
 #include "database.h"
 
 const int MAX_REQUEST_SIZE = 10000;
-const int MAX_OUTPUT_SIZE = 5000;
+const int MAX_OUTPUT_SIZE = 500;
 
 void handleRequest(int);
 

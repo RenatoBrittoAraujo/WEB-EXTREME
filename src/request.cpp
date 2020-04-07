@@ -10,7 +10,7 @@ Request::Request(const std::string request)
 
 REQUEST_TYPE Request::getType()
 {
-  if (this->type != REQUEST_TYPE::INVALID)
+  if (this->type != REQUEST_TYPE::ANY)
   {
     return this->type;
   }

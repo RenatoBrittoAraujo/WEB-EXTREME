@@ -5,6 +5,7 @@
 #include <map>
 
 #include "request.h"
+#include "helpers.h"
 #include "resource.h"
 
 enum RESPONSE_TYPE
@@ -13,34 +14,35 @@ enum RESPONSE_TYPE
   DINAMIC
 };
 
-class Route
+enum FILE_TYPE
 {
-public:
-  Route(std::string file, bool raw_format) :
-    file("assets/" + file), raw_format(raw_format)
+  HTML,
+  IMAGE
+};
+
+struct Route
+{
+  Route() {}
+  Route(std::string file) :
+    file("assets/" + file)
   {
     response_type = RESPONSE_TYPE::STATIC;
     request_type = REQUEST_TYPE::GET;
+    auto type = split(file, ".")[1];
+    if (type == "html") file_type = FILE_TYPE::HTML;
+    else file_type = FILE_TYPE::IMAGE;
   }
-  Route(Resource resource, REQUEST_TYPE request_type) :
-    resource(resource), request_type(request_type)
+  Route(Resource *resource) :
+    resource(resource)
   {
     response_type = RESPONSE_TYPE::DINAMIC;
   }
-  std::string parseResponse();
-private:
   REQUEST_TYPE request_type;
   RESPONSE_TYPE response_type;
+  Resource *resource;
   std::string file;
-  bool raw_format;
-  Resource resource;
-};
-
-std::map<std::string, Route> router =
-{
-  {"/", Route("about.html", false)},
-  {"/favicon.ico", Route("favicon.ico", true)},
-  {"/posts/new", Route("createPost.html", false)}
+  FILE_TYPE file_type;
+  std::string path;
 };
 
 class Response
@@ -62,9 +64,10 @@ private:
   std::string header;
   std::string data;
 
-  // Loads a file into a string
-  std::string loadFile(const std::string path, bool raw = false);
-  std::string response_text;
+  void notFound();
+
+  void htmlResponse(std::string file);
+  void imageResponse(std::string file);
 };
 
 #endif

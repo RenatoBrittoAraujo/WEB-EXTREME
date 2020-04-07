@@ -49,7 +49,7 @@ struct InvalidQuery : public std::exception
 
 enum InstStatus
 {
-  NONE = 0,
+  NONE,
   ACTIVE,
   DELETED
 };
