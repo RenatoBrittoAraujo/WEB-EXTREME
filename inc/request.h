@@ -3,6 +3,8 @@
 
 #include <string>
 
+#include <map>
+
 enum REQUEST_TYPE
 {
   ANY,
@@ -21,6 +23,18 @@ enum RESPONSE_STATUS
   UNAUTHORIZED = 403,
   NOT_FOUND = 404,
   SERVER_ERROR = 505
+};
+
+const std::map<RESPONSE_STATUS, std::string>
+  response_status_string =
+{
+  {RESPONSE_STATUS::OK, "OK"},
+  {RESPONSE_STATUS::CREATED, "CREATED"},
+  {RESPONSE_STATUS::NO_CONTENT, "NO_CONTENT"},
+  {RESPONSE_STATUS::NOT_FOUND, "NOT_FOUND"},
+  {RESPONSE_STATUS::SEE_OTHER, "SEE_OTHER"},
+  {RESPONSE_STATUS::SERVER_ERROR, "SERVER_ERROR"},
+  {RESPONSE_STATUS::UNAUTHORIZED, "UNAUTHORIZED"},
 };
 
 class Request

@@ -63,11 +63,21 @@ public:
 private:
   std::string header;
   std::string data;
+  RESPONSE_STATUS response_status;
 
+  // Sets response as a standard 404 not found page
   void notFound();
 
-  void htmlResponse(std::string file);
-  void imageResponse(std::string file);
+  // 
+  void redirectResponse(std::string redirect_to);
+  void fileResponse(std::string file);
+  void resourceReponse(Route route, Request req);
+  void assetResponse(std::string asset);
+
+  bool isImage(std::string file);
+
+  static const std::map<std::string, std::string> fileToContentType;
+  static const std::set<std::string> imageExtensions;
 };
 
 #endif

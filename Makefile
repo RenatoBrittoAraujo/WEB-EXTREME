@@ -1,5 +1,5 @@
 CC = g++ -std=c++17
-SRCDIR = src
+SRCDIR = .
 BUILDDIR = obj
 TARGET = server
  
@@ -9,7 +9,7 @@ SOURCES = $(shell find $(SRCDIR) -type f -name *.$(SRCEXT))
 
 OBJECTS = $(patsubst $(SRCDIR)/%,$(BUILDDIR)/%,$(SOURCES:.$(SRCEXT)=.o))
 
-INC = -I inc -I apps
+INC = -I inc -I apps/inc
 
 $(TARGET): $(OBJECTS)
 	@echo "$(CC) $(INC) $^ -o $(TARGET)"; $(CC) $(INC) $^ -o $(TARGET)

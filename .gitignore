@@ -1,6 +1,5 @@
 .vscode/
 server
 obj/*
-!obj/.gitkeep
 db/*
-!db/.gitkeep
+!*.gitkeep

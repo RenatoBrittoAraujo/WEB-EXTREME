@@ -1,23 +1,10 @@
-#ifndef POSTS
-#define POSTS
-
-#include "resource.h"
+#include "posts.h"
 #include "helpers.h"
 #include "database.h"
 
-class Posts : public Resource
-{
-public:
-  Posts() {}
-  ResourceRet index(Request request);
-  ResourceRet show (Request request, int index);
-};
-
 ResourceRet Posts::index(Request request)
 {
-  std::cout<<"REACH INDEX"<<std::endl;
   std::string file = loadFile("assets/posts/index.html", false);
-  std::cout<<file<<std::endl<<"AFTER:\n";
   std::string content;
   Table posts("post");
   auto instances = posts.getAllInstances();
@@ -33,16 +20,13 @@ ResourceRet Posts::index(Request request)
     content += "<br>=======" + endline + "<br>";
   }
   replace(file, "<content>", content);
-  std::cout<<file<<std::endl;
-  ResourceRet ret;
-  ret.response_status = RESPONSE_STATUS::OK;
+  ResourceRet ret(RESPONSE_STATUS::OK);
   ret.data = file;
   return ret;
 }
 
 ResourceRet Posts::show(Request request, int index)
 {
-  std::cout<<"REACH SHOW WITH "<<index<<std::endl;
   std::string file = loadFile("assets/posts/show.html", false);
   std::string content;
   Table posts("post");
@@ -51,7 +35,7 @@ ResourceRet Posts::show(Request request, int index)
   {
     instance = posts.getElement(index);
   }
-  catch(const std::exception& e)
+  catch (const std::exception &e)
   {
     return ResourceRet();
   }
@@ -63,15 +47,24 @@ ResourceRet Posts::show(Request request, int index)
     content += field + ": " + instance[field] + endline;
   }
   replace(file, "<content>", content);
-  std::cout << file << std::endl;
-  ResourceRet ret;
-  ret.response_status = RESPONSE_STATUS::OK;
+  ResourceRet ret(RESPONSE_STATUS::OK);
   ret.data = file;
   return ret;
 }
 
-// ResourceRet Posts::destroy(Request request)
-// {
-// }
+ResourceRet Posts::createGET(Request request)
+{
+  ResourceRet ret(RESPONSE_STATUS::SEE_OTHER);
+  ret.redirect_to = "https://www.google.com";
+  return ret;
+}
 
-#endif
+ResourceRet Posts::createPOST(Request request)
+{
+  return ResourceRet();
+}
+
+ResourceRet Posts::destroy(Request request, int index)
+{
+  return ResourceRet();
+}
