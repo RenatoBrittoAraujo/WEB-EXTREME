@@ -4,11 +4,17 @@
 ResourceRet Resource::handle(Request request)
 {
   auto args = split(request.getPath(), "/");
-  if (args.size() < 2 and request.getType() == REQUEST_TYPE::GET)
+  ResourceRet ret;
+  if (args.size() < 2 and this->singletonPage)
   {
-    return index(request);
+    ret = page(request);
   }
-  else if (args.size() == 2)
+  else if (args.size() < 2 and 
+           request.getType() == REQUEST_TYPE::GET)
+  {
+    ret = index(request);
+  }
+  else
   {
     bool validNumber = true;
     try
@@ -22,30 +28,21 @@ ResourceRet Resource::handle(Request request)
     if (args[1] == "new")
     {
       if (request.getType() == REQUEST_TYPE::GET)
-        return createGET(request);
+        ret = createGET(request);
       else if (request.getType() == REQUEST_TYPE::POST)
-        return createPOST(request);
-      else
-        return ResourceRet();
+        ret = createPOST(request);
     }
-    else if (validNumber)
+    else if (validNumber and
+             request.getType() == REQUEST_TYPE::GET)
     {
       int index = std::stoi(args[1]);
-      if (request.getType() == REQUEST_TYPE::GET and
-          args.size() == 2)
-        return show(request, index);
-      else if (request.getType() == REQUEST_TYPE::GET and
-               args.size() == 3 and args[2] == "delete")
-        return destroy(request, index);
-      else if (request.getType() == REQUEST_TYPE::GET and
-               args.size() == 3 and args[2] == "edit")
-        return update(request, index);
-      else
-        return ResourceRet();
+      if (args.size() == 2)
+        ret = show(request, index);
+      else if (args.size() == 3 and args[2] == "delete")
+        ret = destroy(request, index);
+      else if (args.size() == 3 and args[2] == "edit")
+        ret = update(request, index);
     }
-    else
-      return ResourceRet();
   }
-  else
-    return ResourceRet();
+  return ret;
 }

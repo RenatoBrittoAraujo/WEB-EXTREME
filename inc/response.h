@@ -68,6 +68,10 @@ private:
   // Sets response as a standard 404 not found page
   void notFound();
 
+  // Add headers to response
+  void buildHeaders();
+  // Searches for assets, routes and resources to anwser request
+  void findRequestResponse(Request request);
   // Craft response that redirect user to given url
   void redirectResponse(std::string redirect_to);
   // Returns a file as response
@@ -78,7 +82,13 @@ private:
   void assetResponse(std::string asset);
   // Returns true if file (or file path) is an image
   bool isImage(std::string file);
+  // Adds an html link to response to stylesheets or scripts
+  void addHTMLHeader(std::string header);
+  // Returns true if string data is an html file
+  bool isHTML(std::string data);
 
+  std::string contentType;
+  
   static const std::map<std::string, std::string> fileToContentType;
   static const std::set<std::string> imageExtensions;
 };

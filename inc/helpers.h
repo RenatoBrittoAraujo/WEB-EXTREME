@@ -8,7 +8,7 @@
 std::vector<std::string> 
   split(std::string str, std::string sep);
 
-bool replace(std::string &str, const std::string &from, const std::string &to);
+std::string replace(std::string &str, const std::string &from, const std::string &to);
 
 std::string loadFile(const std::string path, bool raw);
 

@@ -20,7 +20,7 @@ ResourceRet Posts::index(Request request)
     content += "<a href=\"/posts/" + instance["id"] + "\"> See post </a>"; 
     content += "<br>=======" + endline + "<br>";
   }
-  replace(file, "<content>", content);
+  file = replace(file, "<content>", content);
   ResourceRet ret(RESPONSE_STATUS::OK);
   ret.data = file;
   return ret;
@@ -48,7 +48,7 @@ ResourceRet Posts::show(Request request, int index)
     content += field + ": " + instance[field] + endline;
   }
   content += "<br><br> <a href=\"/posts/"+std::to_string(index)+"/delete\"> Delete post </a>";
-  replace(file, "<content>", content);
+  file = replace(file, "<content>", content);
   ResourceRet ret(RESPONSE_STATUS::OK);
   ret.data = file;
   return ret;

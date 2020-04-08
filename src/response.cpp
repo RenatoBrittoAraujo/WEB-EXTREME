@@ -1,4 +1,3 @@
-#include <string>
 #include <vector>
 #include <fstream>
 #include <map>
@@ -13,19 +12,36 @@
 
 #include "posts.h"
 
-std::map<std::string, Route> router =
+std::map<const std::string, Route> router =
 {
-  // {{"/", REQUEST_TYPE::GET}, Route("about.html")},
+  // Website icon
   {"/favicon.ico", Route("favicon.ico")},
+  // Route to open posts index at home page
   {"/", Route(new Posts())},
+  // Route to deal with show, delete, edit and create of posts 
   {"posts", Route(new Posts())},
+  // About page
   {"/about", Route("about.html")}
 };
 
 /* END OF ROUTING */
 
+/* HTML LINKS */
+
+const std::vector<std::string> htmlHeaders =
+{
+  // Page charset
+  "<meta charset=\"URF-8\">",
+  // Website title
+  "<title> Web Extreme </title>"
+  // Boostrap
+  // "<link rel=\"stylesheet\" href=\"https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css\" integrity=\"sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh\" crossorigin=\"anonymous\">"
+};
+
+/* END OF HTML LINKS */
+
 const std::map<std::string, std::string>
-  Response::fileToContentType =
+    Response::fileToContentType =
 {
   {"css", "text/css"},
   {"html", "text/html"},
@@ -44,39 +60,65 @@ const std::set<std::string> Response::imageExtensions =
 
 Response::Response(Request req)
 {
+  this->findRequestResponse(req);
+
+  if (this->isHTML(this->data))
+  {
+    for (auto header : htmlHeaders)
+    {
+      if (this->data.find(header) == this->data.npos)
+        this->addHTMLHeader(header);
+    }
+  }
+
+  this->buildHeaders();
+}
+
+void Response::findRequestResponse(Request req)
+{
   std::string requestRoute = req.getPath();
+  Route route;
   if (requestRoute.find("assets") != requestRoute.npos)
   {
     if (req.getType() == REQUEST_TYPE::GET)
       this->assetResponse(requestRoute);
     else
       notFound();
-    return;
   }
-  Route route;
-  if (not router.count(requestRoute))
+  else
   {
-    auto resource = split(requestRoute, "/")[0];
-    if (not router.count(resource))
+    if (not router.count(requestRoute))
     {
-      notFound();
-      return;
+      auto resource = split(requestRoute, "/")[0];
+      if (not router.count(resource))
+      {
+        notFound();
+        return;
+      }
+      else
+        route = router[resource];
     }
     else
-      route = router[resource];
+    {
+      route = router[requestRoute];
+    }
+    if (route.response_type == RESPONSE_TYPE::STATIC)
+    {
+      if (req.getType() == REQUEST_TYPE::GET)
+        this->fileResponse(route.file);
+      else
+      {
+        notFound();
+      }
+    }
+    else
+    {
+      this->resourceReponse(route, req);
+    }
   }
-  else
-    route = router[requestRoute];
-  if (route.response_type == RESPONSE_TYPE::STATIC)
+  if (this->header.empty() and this->data.empty())
   {
-    if (req.getType() == REQUEST_TYPE::GET)
-      this->fileResponse(route.file);
-    else 
-      notFound();
-  }
-  else
-  {
-    this->resourceReponse(route, req);
+    notFound();
   }
 }
 
@@ -120,10 +162,7 @@ void Response::resourceReponse(Route route, Request req)
   }
   this->data = res.data;
   this->response_status = res.response_status;
-  this->header = "HTTP/1.1 " + 
-    std::to_string(this->response_status) + " " +
-    response_status_string.find(this->response_status)->second + "\r\n";
-  this->header += "Content-type: text/html\r\n";
+  this->contentType = "html";
   if (not res.additional_headers.empty())
     this->header += res.additional_headers;
 }
@@ -163,11 +202,19 @@ void Response::fileResponse(std::string file)
   filep.close();
   auto args = split(file, ".");
   std::string data = loadFile(file, true);
-  this->header = "HTTP/1.1 200 OK\r\n";
-  this->header += "Content-Type: " + 
-    this->fileToContentType.find(args[1])->second + "\r\n";
-  this->header += "Content-Length: " + std::to_string(data.size()) + "\r\n";
+  this->response_status = RESPONSE_STATUS::OK;
+  this->contentType = args[1];
   this->data = data + "\r\n";
+}
+
+void Response::buildHeaders()
+{
+  this->header = "HTTP/1.1 " +
+                 std::to_string(this->response_status) + " " +
+                 response_status_string.find(this->response_status)->second + "\r\n";
+  this->header += "Content-Type: " +
+                  this->fileToContentType.find(this->contentType)->second + "\r\n";
+  this->header += "Content-Length: " + std::to_string(data.size()) + "\r\n";
 }
 
 bool Response::isImage(std::string file)
@@ -175,4 +222,16 @@ bool Response::isImage(std::string file)
   if (this->imageExtensions.count(split(file, ".")[1]))
     return true;
   return false;
+}
+
+void Response::addHTMLHeader(std::string header)
+{
+  this->data = replace(this->data, "</head>", std::string(header + "\r\n</head>"));
+}
+
+bool Response::isHTML(std::string data)
+{
+  return data.find("<html>") != data.npos or
+         data.find("<head>") != data.npos or
+         data.find("<body>") != data.npos;
 }
