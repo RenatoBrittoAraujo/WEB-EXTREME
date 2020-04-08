@@ -3,9 +3,32 @@
 #include <map>
 
 #include "request.h"
+#include "helpers.h"
 
 Request::Request(const std::string request)
 {
+  request_text = request;
+  auto splt = split(request_text, "\n");
+  bool endOfHeaders = false;
+  splt.erase(splt.begin());
+  for (auto str : splt)
+  {
+    if (not endOfHeaders and str.find(": ") != str.npos)
+    {
+      this->headers.push_back(str);
+      auto keyvalue = split(str, ": ");
+      this->parsedHeaders[keyvalue[0]] = keyvalue[1];
+    }
+    else
+    {
+      if (endOfHeaders == false)
+      {
+        endOfHeaders = true;
+        continue;
+      }
+      data += str;
+    }
+  }
   request_text = request;
 }
 
@@ -61,4 +84,24 @@ bool Request::isFaviconReq()
 {
   return  request_text.find("GET /favicon.ico") 
           != request_text.npos;
+}
+
+std::vector<std::string> Request::getHeaders()
+{
+  return this->headers;
+}
+
+std::string Request::getData()
+{
+  return this->data;
+}
+
+std::string Request::getHeaderValue(std::string key)
+{
+  return this->parsedHeaders[key];
+}
+
+bool Request::headerHasKey(std::string key)
+{
+  return this->parsedHeaders[key] != "";
 }

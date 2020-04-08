@@ -18,6 +18,7 @@ std::map<std::string, Route> router =
   // {{"/", REQUEST_TYPE::GET}, Route("about.html")},
   {"/favicon.ico", Route("favicon.ico")},
   {"/", Route(new Posts())},
+  {"posts", Route(new Posts())},
   {"/about", Route("about.html")}
 };
 
@@ -129,6 +130,12 @@ void Response::resourceReponse(Route route, Request req)
 
 void Response::assetResponse(std::string asset)
 {
+  // Security against accesing system's files
+  if (asset.find("..") != asset.npos)
+  {
+    this->notFound();
+    return;
+  }
   std::string path;
   auto args = split(asset, "/");
   for (auto arg : args)

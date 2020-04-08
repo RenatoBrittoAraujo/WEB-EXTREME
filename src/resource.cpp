@@ -31,11 +31,14 @@ ResourceRet Resource::handle(Request request)
     else if (validNumber)
     {
       int index = std::stoi(args[1]);
-      if (request.getType() == REQUEST_TYPE::GET)
+      if (request.getType() == REQUEST_TYPE::GET and
+          args.size() == 2)
         return show(request, index);
-      else if (request.getType() == REQUEST_TYPE::DELETE)
+      else if (request.getType() == REQUEST_TYPE::GET and
+               args.size() == 3 and args[2] == "delete")
         return destroy(request, index);
-      else if (request.getType() == REQUEST_TYPE::PUT)
+      else if (request.getType() == REQUEST_TYPE::GET and
+               args.size() == 3 and args[2] == "edit")
         return update(request, index);
       else
         return ResourceRet();

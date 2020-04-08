@@ -68,12 +68,15 @@ private:
   // Sets response as a standard 404 not found page
   void notFound();
 
-  // 
+  // Craft response that redirect user to given url
   void redirectResponse(std::string redirect_to);
+  // Returns a file as response
   void fileResponse(std::string file);
+  // Handles a resource response
   void resourceReponse(Route route, Request req);
+  // Parses and returns a valid query for a resource in server
   void assetResponse(std::string asset);
-
+  // Returns true if file (or file path) is an image
   bool isImage(std::string file);
 
   static const std::map<std::string, std::string> fileToContentType;

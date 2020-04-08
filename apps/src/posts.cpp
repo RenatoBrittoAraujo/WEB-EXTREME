@@ -17,6 +17,7 @@ ResourceRet Posts::index(Request request)
     {
       content += field + ": " + instance[field] + "<br>";
     }
+    content += "<a href=\"/posts/" + instance["id"] + "\"> See post </a>"; 
     content += "<br>=======" + endline + "<br>";
   }
   replace(file, "<content>", content);
@@ -46,6 +47,7 @@ ResourceRet Posts::show(Request request, int index)
   {
     content += field + ": " + instance[field] + endline;
   }
+  content += "<br><br> <a href=\"/posts/"+std::to_string(index)+"/delete\"> Delete post </a>";
   replace(file, "<content>", content);
   ResourceRet ret(RESPONSE_STATUS::OK);
   ret.data = file;
@@ -54,17 +56,62 @@ ResourceRet Posts::show(Request request, int index)
 
 ResourceRet Posts::createGET(Request request)
 {
-  ResourceRet ret(RESPONSE_STATUS::SEE_OTHER);
-  ret.redirect_to = "https://www.google.com";
+  ResourceRet ret(RESPONSE_STATUS::OK);
+  ret.data = loadFile("assets/posts/new.html", true);
   return ret;
 }
 
 ResourceRet Posts::createPOST(Request request)
 {
-  return ResourceRet();
+  Table table("post");
+  auto args = split(request.getData(), "&");
+  std::map<std::string, std::string> element;
+  for (auto arg : args)
+  {
+    std::string key;
+    int i = 0;
+    while (arg[i] != '=') key += arg[i++];
+    element[key] = arg.substr(i + 1);
+  }
+  for (auto v : element)
+  {
+    std::cout<<"("<<v.first<<"): ("<<v.second<<")"<<std::endl;
+  }
+  bool success = true;
+  try
+  {
+    table.addElement(element);
+  }
+  catch(const std::exception& e)
+  {
+    std::cout<<e.what()<<std::endl;
+    success = false;
+  }
+  ResourceRet ret;
+  if (success)
+  {
+    ret.response_status = RESPONSE_STATUS::CREATED;
+    ret.redirect_to = "/posts/" + std::to_string(table.count());
+  }
+  else
+  {
+    ret.response_status = RESPONSE_STATUS::OK;
+    ret.redirect_to = "/posts/new";
+  }
+  return ret;
 }
 
 ResourceRet Posts::destroy(Request request, int index)
 {
-  return ResourceRet();
+  Table table("post");
+  try
+  {
+    table.removeElement(index);
+  }
+  catch(const std::exception& e)
+  {
+  }
+  ResourceRet ret(RESPONSE_STATUS::OK);
+  ret.redirect_to = "/posts";
+  return ret;
 }

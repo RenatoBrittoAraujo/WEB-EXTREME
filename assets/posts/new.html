@@ -4,6 +4,15 @@
     <title>Web Extreme</title>
   </head>
   <body style="margin: 0">
-    <content>
+    <div style="text-align: center"> 
+      <h1>Create a post</h1>
+      <form action="/posts/new" method="post">
+        <label for="title">Post title:</label><br>
+        <input type="text" id="title" name="title" value="John"><br>
+        <label for="body">Post body:</label><br>
+        <input type="text" id="body" name="body" value="Doe"><br><br>
+        <input type="submit" value="Submit">
+      </form>
+    </div>
   </body>
 </html>
