@@ -38,7 +38,9 @@ protected:
   bool customURLHandling = false;
   bool singletonPage = false;
   
-
+  std::string assembleItem(std::string file, int index);
+  std::string assembleIndex(std::string file, int from, int to);
+  
 };
 
 #endif

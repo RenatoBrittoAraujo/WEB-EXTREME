@@ -7,6 +7,7 @@
 #include "request.h"
 #include "helpers.h"
 #include "resource.h"
+#include "htmlcomponent.h"
 
 /* ROUTING */
 
@@ -28,17 +29,33 @@ std::map<const std::string, Route> router =
 
 /* HTML LINKS */
 
-const std::vector<std::string> htmlHeaders =
+std::vector<std::string> htmlHeaders =
 {
   // Page charset
   "<meta charset=\"URF-8\">",
   // Website title
   "<title> Web Extreme </title>"
   // Boostrap
-  // "<link rel=\"stylesheet\" href=\"https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css\" integrity=\"sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh\" crossorigin=\"anonymous\">"
+   "<link rel=\"stylesheet\" href=\"https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css\" integrity=\"sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh\" crossorigin=\"anonymous\">"
 };
 
 /* END OF HTML LINKS */
+
+/* TEMPLATE SUBSTITUTIONS */
+
+void Response::setTemplate(bool override_template)
+{
+  HTMLComponent completePage(
+    override_template ? 
+      "template/simpleTemplate.html" :
+      "template/customTemplate.html");
+  completePage.addSubstitution("<content>", this->data);
+  completePage.addSubstitution("<header>", 
+    HTMLComponent("template/header.html").getFile());
+  this->data = completePage.getFile();
+}
+
+/* END OF TEMPLATE SUBSTITUTIONS */
 
 const std::map<std::string, std::string>
     Response::fileToContentType =
@@ -64,6 +81,7 @@ Response::Response(Request req)
 
   if (this->isHTML(this->data))
   {
+    this->setTemplate(false);
     for (auto header : htmlHeaders)
     {
       if (this->data.find(header) == this->data.npos)
@@ -81,7 +99,10 @@ void Response::findRequestResponse(Request req)
   if (requestRoute.find("assets") != requestRoute.npos)
   {
     if (req.getType() == REQUEST_TYPE::GET)
+    {
+      this->raw_response = true;
       this->assetResponse(requestRoute);
+    }
     else
       notFound();
   }
@@ -129,14 +150,13 @@ std::string Response::getResponse()
 
 int Response::getResponseSize()
 {
+  this->response_status = RESPONSE_STATUS::OK;
   return this->getResponse().size();
 }
-
-
+  
 void Response::notFound()
 {
   this->fileResponse("assets/oops.html");
-  return;
 }
 
 void Response::redirectResponse(std::string redirect_to)
@@ -164,7 +184,7 @@ void Response::resourceReponse(Route route, Request req)
   this->response_status = res.response_status;
   this->contentType = "html";
   if (not res.additional_headers.empty())
-    this->header += res.additional_headers;
+    this->responseHeaders.push_back(res.additional_headers);
 }
 
 void Response::assetResponse(std::string asset)
@@ -215,6 +235,10 @@ void Response::buildHeaders()
   this->header += "Content-Type: " +
                   this->fileToContentType.find(this->contentType)->second + "\r\n";
   this->header += "Content-Length: " + std::to_string(data.size()) + "\r\n";
+  for (auto header : this->responseHeaders)
+  {
+    this->header += header + "\r\n";
+  }
 }
 
 bool Response::isImage(std::string file)
@@ -233,5 +257,6 @@ bool Response::isHTML(std::string data)
 {
   return data.find("<html>") != data.npos or
          data.find("<head>") != data.npos or
-         data.find("<body>") != data.npos;
+         data.find("<body>") != data.npos or
+         this->contentType == "html";
 }

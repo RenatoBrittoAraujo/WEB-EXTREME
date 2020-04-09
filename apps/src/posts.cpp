@@ -1,35 +1,33 @@
 #include "posts.h"
 #include "helpers.h"
 #include "database.h"
+#include "htmlcomponent.h"
 
 ResourceRet Posts::index(Request request)
 {
-  std::string file = loadFile("assets/posts/index.html", false);
-  std::string content;
   Table posts("post");
   auto instances = posts.getAllInstances();
   auto fields = posts.getFields();
-  std::string endline = "\r\n";
-  content += "=======" + endline + "<br>";
+  HTMLComponent index("posts/index.html");
+  std::string content;
+  fields.push_back("id");
   for (auto instance : instances)
   {
+    HTMLComponent post("posts/post.html");
     for (auto field : fields)
     {
-      content += field + ": " + instance[field] + "<br>";
+      post.addSubstitution("<post." + field + ">", instance[field]);    
     }
-    content += "<a href=\"/posts/" + instance["id"] + "\"> See post </a>"; 
-    content += "<br>=======" + endline + "<br>";
+    content += post.getFile();
   }
-  file = replace(file, "<content>", content);
+  index.addSubstitution("<posts>", content);
   ResourceRet ret(RESPONSE_STATUS::OK);
-  ret.data = file;
+  ret.data = index.getFile();
   return ret;
 }
 
 ResourceRet Posts::show(Request request, int index)
 {
-  std::string file = loadFile("assets/posts/show.html", false);
-  std::string content;
   Table posts("post");
   std::map<std::string, std::string> instance;
   try
@@ -41,16 +39,15 @@ ResourceRet Posts::show(Request request, int index)
     return ResourceRet();
   }
   auto fields = posts.getFields();
-  std::string endline = "\r\n";
-  content += "=======" + endline + "<br>";
+  HTMLComponent post("posts/post.html");
   for (auto field : fields)
   {
-    content += field + ": " + instance[field] + endline;
+    post.addSubstitution("<post." + field + ">", instance[field]);
   }
-  content += "<br><br> <a href=\"/posts/"+std::to_string(index)+"/delete\"> Delete post </a>";
-  file = replace(file, "<content>", content);
+  HTMLComponent file("posts/show.html");
+  file.addSubstitution("<post>", post.getFile());
   ResourceRet ret(RESPONSE_STATUS::OK);
-  ret.data = file;
+  ret.data = file.getFile();
   return ret;
 }
 

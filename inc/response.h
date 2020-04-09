@@ -65,6 +65,9 @@ private:
   std::string data;
   RESPONSE_STATUS response_status;
 
+  // Set up content in template file
+  void setTemplate(bool override_template);
+
   // Sets response as a standard 404 not found page
   void notFound();
 
@@ -88,7 +91,9 @@ private:
   bool isHTML(std::string data);
 
   std::string contentType;
-  
+  bool raw_response = false;
+  std::vector<std::string> responseHeaders;
+
   static const std::map<std::string, std::string> fileToContentType;
   static const std::set<std::string> imageExtensions;
 };
