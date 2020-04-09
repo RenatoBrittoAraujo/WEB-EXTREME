@@ -22,6 +22,7 @@ Table::Table(std::string tablename,
   if (Table::checkTableExists(tablename))
   {
     throw TableAlreadyExistsException();
+    return;
   }
   this->tablename = tablename;
   std::ofstream table("db/" + tablename, std::ios::binary);
@@ -201,7 +202,7 @@ std::vector<std::string> Table::getFields()
 bool Table::checkTableExists(std::string tablename)
 {
   std::ifstream table("db/" + tablename);
-  bool ret = table.is_open();
+  bool ret = table.good();
   table.close();
   return ret;
 }

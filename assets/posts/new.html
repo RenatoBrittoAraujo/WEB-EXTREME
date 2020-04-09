@@ -1,16 +1,14 @@
-<html>
-  <head>
-  </head>
-  <body style="margin: 0">
-    <div style="text-align: center"> 
-      <h1>Create a post</h1>
-      <form action="/posts/new" method="post">
-        <label for="title">Post title:</label><br>
-        <input type="text" id="title" name="title" value="John"><br>
-        <label for="body">Post body:</label><br>
-        <input type="text" id="body" name="body" value="Doe"><br><br>
-        <input type="submit" value="Submit">
-      </form>
+<div class="text-center p-3"> 
+  <h1>Create a new post</h1>
+  <form action="/posts/new" method="post">
+    <div class="p-3">
+      <label for="title">Post title:</label>
+      <input class="form-control" type="text" id="title" name="title">
     </div>
-  </body>
-</html>
+    <div class="p-3">
+      <label for="body">Post body:</label>
+      <textarea class="form-control" id="body" rows="7" name="body"></textarea>
+    </div>
+    <button class="btn btn-primary mt-3" type="submit" value="Submit">Create</button>
+  </form>
+</div>

@@ -31,7 +31,7 @@ std::vector<Command> commands =
 
 bool test_table(std::string tablename)
 {
-  if (!Database::tableExists(tablename))
+  if (!Table::checkTableExists(tablename))
   {
     std::cout << "Table " + tablename + " was not found" << std::endl;
     return false;
@@ -73,7 +73,7 @@ void table_size(std::string tablename)
 
 void create_table(std::string tablename, std::vector<std::string> args)
 {
-  if (Database::tableExists(tablename))
+  if (Table::checkTableExists(tablename))
   {
     std::cout << "Table already exists" << std::endl;
     return;

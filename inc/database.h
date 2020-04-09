@@ -29,8 +29,8 @@ public:
   static std::vector<Table> getTables();
   // Returns table with given name
   static Table getTable(std::string tablename);
-  // Returns true if table exists and false otherwise
-  static bool tableExists(std::string tablename);
+  // Runs pending migrations to DB
+  static void runMigrations();
 
 private:
 

@@ -6,7 +6,7 @@
 class Posts : public Resource
 {
 public:
-  Posts() {}
+  Posts();
   ResourceRet index(Request request);
   ResourceRet show (Request request, int index);
   ResourceRet createGET(Request request);

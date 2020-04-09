@@ -2,6 +2,7 @@
 #define RESOURCE
 
 #include "request.h"
+#include "database.h"
 
 struct ResourceRet
 {
@@ -23,7 +24,9 @@ class Resource
 {
 public:
   Resource() {}
+  Resource(std::string table);
   ResourceRet handle(Request request);
+
   // Resource pages
   virtual ResourceRet index(Request request) { return ResourceRet(); }
   virtual ResourceRet createGET(Request request) { return ResourceRet(); }
@@ -31,16 +34,27 @@ public:
   virtual ResourceRet show(Request request, int index) { return ResourceRet(); }
   virtual ResourceRet destroy(Request request, int index) { return ResourceRet(); }
   virtual ResourceRet update(Request request, int index) { return ResourceRet(); }
-  // Singleton page
+  
+  // Singleton resource page
   virtual ResourceRet page(Request request) { return ResourceRet(); }
 private:
+  static const std::map<std::string, std::string> asciiConverter;
 protected:
   bool customURLHandling = false;
   bool singletonPage = false;
+
+  Table table;
   
-  std::string assembleItem(std::string file, int index);
-  std::string assembleIndex(std::string file, int from, int to);
-  
+  // Returns instace in resource table
+  std::map<std::string, std::string> getInstance(int index);
+  // Returns all instances in resource table
+  std::vector<std::map<std::string, std::string>> getAllInstances();
+  // Parses a post request's data
+  std::map<std::string, std::string> postParse(std::string raw_text);
+  // Retuns all fields in resource table
+  std::vector<std::string> getFields();
+
+  std::vector<std::string> fields;
 };
 
 #endif

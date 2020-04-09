@@ -81,9 +81,9 @@ public:
   int getNumberOfFields();
   // Returns the fields of table
   std::vector<std::string> getFields();
-private:
   // Returns true if table exits
   static bool checkTableExists(std::string tablename);
+private:
   // Returns id from ifstream buffer set on ID position
   int getID(std::ifstream &table);
   // Returns id from ifstream buffer set on status position

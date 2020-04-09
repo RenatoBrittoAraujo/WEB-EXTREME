@@ -5,6 +5,8 @@
 #include <fstream>
 
 #include "database.h"
+#include "helpers.h"
+#include "table.h"
 
 Database::Database()
 {
@@ -30,7 +32,7 @@ bool Database::destroyTable(std::string tablename)
 std::vector<std::map<std::string, std::string>> 
   Database::getAllInstances(std::string tablename)
 {
-  if (not Database::tableExists(tablename))
+  if (not Table::checkTableExists(tablename))
   {
     throw TableNotFoundException();
   }
@@ -61,13 +63,25 @@ Table Database::getTable(std::string tablename)
   return table;
 }
 
-bool Database::tableExists(std::string tablename)
+void Database::runMigrations()
 {
-  std::fstream file("db/" + tablename);
-  if (file.is_open())
+  std::string raw_migrations = loadFile("migrations", false);
+  auto migrations = split(raw_migrations, "$");
+  for (auto raw_migration : migrations)
   {
-    file.close();
-    return true;
+    std::string migration = raw_migration;
+    migration.pop_back();
+    migration.pop_back();
+    auto args = split(migration, " ");
+    if (migration.size() < 3 or
+        migration.empty() or
+        args.size() < 2)
+      continue;
+    if (not Table::checkTableExists(args[0]))
+    {
+      std::string tableName = args[0];
+      args.erase(args.begin());
+      Database::createTable(tableName, args);
+    }
   }
-  return false;
 }

@@ -13,7 +13,7 @@ Your resources have to be persistent. When you create a post, it should be there
 
 Bonus points: port foward your IP on your router and make it accessible by anyone.
 
-Bonut points: implement authentication with a cryptography algorithm of your choosing
+Bonus points: implement authentication with a cryptography algorithm of your choosing.
 
 ## This is my take on the challenge
 
@@ -27,6 +27,12 @@ Running:
 make run HOST=[PORT NUMBER such as 8080]
 ```
 
+Dealing with the database:
+```
+make run FLAGS=-db
+```
+
 Using:
 
 Go to web browser, insert 0.0.0.0:[PORT NUMBER] and there you have it!
+

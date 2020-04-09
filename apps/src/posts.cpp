@@ -1,13 +1,20 @@
+#include <algorithm>
+
 #include "posts.h"
 #include "helpers.h"
 #include "database.h"
 #include "htmlcomponent.h"
 
+Posts::Posts() :
+  Resource("post")
+{
+}
+
 ResourceRet Posts::index(Request request)
 {
-  Table posts("post");
-  auto instances = posts.getAllInstances();
-  auto fields = posts.getFields();
+  auto instances = this->getAllInstances();
+  auto fields = this->getFields();
+  std::reverse(instances.begin(), instances.end());
   HTMLComponent index("posts/index.html");
   std::string content;
   fields.push_back("id");
@@ -16,7 +23,9 @@ ResourceRet Posts::index(Request request)
     HTMLComponent post("posts/post.html");
     for (auto field : fields)
     {
-      post.addSubstitution("<post." + field + ">", instance[field]);    
+      std::string inp = instance[field];
+      if (inp.size() > 100) inp = inp.substr(0, 100) + "...";
+      post.addSubstitution("<post." + field + ">", inp);    
     }
     content += post.getFile();
   }
@@ -29,12 +38,9 @@ ResourceRet Posts::index(Request request)
 ResourceRet Posts::show(Request request, int index)
 {
   Table posts("post");
-  std::map<std::string, std::string> instance;
-  try
-  {
-    instance = posts.getElement(index);
-  }
-  catch (const std::exception &e)
+  std::map<std::string, std::string> 
+    instance = this->getInstance(index);
+  if (instance.empty()) 
   {
     return ResourceRet();
   }
@@ -46,6 +52,7 @@ ResourceRet Posts::show(Request request, int index)
   }
   HTMLComponent file("posts/show.html");
   file.addSubstitution("<post>", post.getFile());
+  file.addSubstitution("<post.id>", instance["id"]);
   ResourceRet ret(RESPONSE_STATUS::OK);
   ret.data = file.getFile();
   return ret;
@@ -61,15 +68,7 @@ ResourceRet Posts::createGET(Request request)
 ResourceRet Posts::createPOST(Request request)
 {
   Table table("post");
-  auto args = split(request.getData(), "&");
-  std::map<std::string, std::string> element;
-  for (auto arg : args)
-  {
-    std::string key;
-    int i = 0;
-    while (arg[i] != '=') key += arg[i++];
-    element[key] = arg.substr(i + 1);
-  }
+  auto element = this->postParse(request.getData());
   for (auto v : element)
   {
     std::cout<<"("<<v.first<<"): ("<<v.second<<")"<<std::endl;

@@ -161,15 +161,15 @@ void Response::notFound()
 
 void Response::redirectResponse(std::string redirect_to)
 {
-  this->header = "HTTP/1.1 302 FOUND\r\n";
-  this->header += "Content-type: text/html\r\n";
+  this->response_status = RESPONSE_STATUS::SEE_OTHER;
+  this->contentType = "html";
   this->data = "<script> window.location = \"" + redirect_to + "\"</script>\r\n";
 }
 
 void Response::resourceReponse(Route route, Request req)
 {
   auto res = route.resource->handle(req);
-  delete route.resource;
+  delete route.resource; 
   if (res.response_status == RESPONSE_STATUS::NOT_FOUND)
   {
     notFound();

@@ -12,6 +12,7 @@ const int MAX_REQUEST_SIZE = 10000;
 const int MAX_OUTPUT_SIZE = 1000;
 
 void handleRequest(int);
+void runMigrations();
 
 void error(const char *msg)
 {
@@ -21,6 +22,8 @@ void error(const char *msg)
 
 int main(int argc, char *argv[])
 {
+  runMigrations();
+
   clock_t initialClock = clock();
 
   if (argc != 2)
@@ -119,4 +122,9 @@ void handleRequest(int sock)
 
   std::cout << "RESPONSE COMPLETE, LISTENING..." 
     << std::endl << std::endl;
+}
+
+void runMigrations()
+{
+  Database::runMigrations();
 }
