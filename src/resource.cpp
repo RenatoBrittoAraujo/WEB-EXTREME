@@ -4,7 +4,11 @@
 
 Resource::Resource(std::string table)
 {
-  this->table = Table(table); 
+}
+
+void Resource::setTable(std::string tablename)
+{
+  this->table = Table(tablename);
 }
 
 ResourceRet Resource::handle(Request request)

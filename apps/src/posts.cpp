@@ -5,9 +5,9 @@
 #include "database.h"
 #include "htmlcomponent.h"
 
-Posts::Posts() :
-  Resource("post")
+Posts::Posts()
 {
+  this->setTable("post");
 }
 
 ResourceRet Posts::index(Request request)

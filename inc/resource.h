@@ -27,6 +27,8 @@ public:
   Resource(std::string table);
   ResourceRet handle(Request request);
 
+  void setTable(std::string tablename);
+
   // Resource pages
   virtual ResourceRet index(Request request) { return ResourceRet(); }
   virtual ResourceRet createGET(Request request) { return ResourceRet(); }

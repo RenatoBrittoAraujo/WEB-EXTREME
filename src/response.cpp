@@ -169,7 +169,7 @@ void Response::redirectResponse(std::string redirect_to)
 void Response::resourceReponse(Route route, Request req)
 {
   auto res = route.resource->handle(req);
-  delete route.resource; 
+  delete route.resource;
   if (res.response_status == RESPONSE_STATUS::NOT_FOUND)
   {
     notFound();
