@@ -26,14 +26,14 @@ Show page:
 Create page:
 ![Create page](https://i.imgur.com/PdYm3Gi.png)
 
+Before compiling for the first time, run setup:
+```
+make setup
+```
+
 Compiling:
 ```
 make
-```
-
-Before running for the first time, run setup:
-```
-make setup
 ```
 
 Running:
