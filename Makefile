@@ -17,6 +17,12 @@ $(TARGET): $(OBJECTS)
 $(BUILDDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 	$(CC) $(INC) -c -o $@ $<
 
+setup:
+	@mkdir -p obj
+	@mkdir -p obj/src
+	@mkdir -p obj/apps/src
+	@mkdir -p db
+
 clean:
 	@echo "find . -type f -name '*.o' -delete"; find . -type f -name '*.o' -delete
 	@echo "rm ./$(TARGET)"; rm ./$(TARGET)

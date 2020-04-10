@@ -13,17 +13,7 @@
 
 #include "posts.h"
 
-std::map<const std::string, Route> router =
-{
-  // Website icon
-  {"/favicon.ico", Route("favicon.ico")},
-  // Route to open posts index at home page
-  {"/", Route(new Posts())},
-  // Route to deal with show, delete, edit and create of posts 
-  {"posts", Route(new Posts())},
-  // About page
-  {"/about", Route("about.html")}
-};
+
 
 /* END OF ROUTING */
 
@@ -94,6 +84,18 @@ Response::Response(Request req)
 
 void Response::findRequestResponse(Request req)
 {
+  std::map<const std::string, Route> router =
+  {
+    // Website icon
+    {"/favicon.ico", Route("favicon.ico")},
+    // Route to open posts index at home page
+    {"/", Route(new Posts())},
+    // Route to deal with show, delete, edit and create of posts 
+    {"posts", Route(new Posts())},
+    // About page
+    {"/about", Route("about.html")}
+  };
+  
   std::string requestRoute = req.getPath();
   Route route;
   if (requestRoute.find("assets") != requestRoute.npos)
