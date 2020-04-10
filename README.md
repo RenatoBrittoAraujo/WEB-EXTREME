@@ -17,6 +17,15 @@ Bonus points: implement authentication with a cryptography algorithm of your cho
 
 ## This is my take on the challenge
 
+Index page:
+![Index page](https://i.imgur.com/Vthe2su.png)
+
+Show page:
+![Show page](https://i.imgur.com/uuC9LCS.png)
+
+Create page:
+![Create page](https://i.imgur.com/PdYm3Gi.png)
+
 Compiling:
 ```
 make
