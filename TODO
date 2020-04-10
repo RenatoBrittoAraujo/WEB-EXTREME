@@ -1,3 +1,4 @@
-- Fix POST request
-- Better presentation
 - Authentication
+- For loop in html
+- Tests
+- Fix post bug when sending special characters

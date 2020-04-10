@@ -22,6 +22,11 @@ Compiling:
 make
 ```
 
+Before running for the first time, run setup:
+```
+make setup
+```
+
 Running:
 ```
 make run HOST=[PORT NUMBER such as 8080]
